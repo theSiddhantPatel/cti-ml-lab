@@ -1,0 +1,39 @@
+# ---- Python ----
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# ---- Virtual Environment ----
+fl_env/
+venv/
+env/
+
+# ---- Jupyter ----
+.ipynb_checkpoints/
+
+# ---- Dataset ----
+MNIST/
+data/
+
+# ---- Model files ----
+*.pth
+*.pt
+
+# ---- Logs ----
+*.log
+
+# ---- Output files ----
+accuracy_history.json
+accuracy_plot.png
+
+# ---- OS files ----
+.DS_Store
+Thumbs.db
+
+# ---- IDE ----
+.vscode/
+.idea/
+
+# ---- Misc ----
+*.sqlite3

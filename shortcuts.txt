@@ -1,0 +1,25 @@
+Frequently Used Jupyter Notebook Keyboard Shortcuts:
+Esc switches you to Command Mode, where you can navigate around your notebook using the arrow keys. You'll know you're in Command Mode when the notebook's cell border is blue, and no blinking text cursor is visible inside the cell.
+
+While in Command Mode:
+A inserts a new cell above the current cell, while B inserts one below.
+M converts the current cell to a Markdown cell, and Y switches it back to a Code cell.
+D + D (press "D" twice) deletes the selected cell.
+Z undoes the deletion of a cell—perfect if you delete one by mistake.
+Enter switches you from Command Mode back to Edit Mode. In Edit Mode, the cell border turns green, and a blinking text cursor appears inside, allowing you to edit its content.
+
+While in Edit Mode:
+Shift + Enter runs the cell and moves to the next one.
+Ctrl + Enter runs the cell but keeps the focus on the same cell.
+Alt + Enter runs the cell and inserts a new one below.
+Ctrl + ] indents the selected lines, and Ctrl + [ unindents them.
+Ctrl + / toggles comments for selected lines of code.
+Ctrl + Shift + - splits the current cell into two at the cursor’s location.
+Esc + F opens the Find and Replace dialog, allowing you to search and replace within the code cells without affecting outputs.
+Esc + O toggles the output visibility of the current cell.
+
+Selecting Multiple Cells:
+Shift + J (or Shift + Down) selects the next cell downward.
+Shift + K (or Shift + Up) selects the next cell upward.
+Once multiple cells are selected, you can delete, copy, cut, paste, or run them as a batch—making it easier to manage and reorganize your notebook.
+Shift + M merges selected cells into one.

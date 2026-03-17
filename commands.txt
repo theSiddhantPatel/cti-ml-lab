@@ -1,0 +1,4 @@
+  create venv: python -m venv fl_env
+
+activate it:  fl_env\Scripts\activate
+

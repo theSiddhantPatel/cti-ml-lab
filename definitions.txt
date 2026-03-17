@@ -1,0 +1,39 @@
+Flower is a Python-based framework that makes it easy to build and run federated learning systems.
+
+Federated Learning is a machine learning approach where multiple clients (devices, servers, or organizations) collaboratively train a model without sharing raw data — only model updates are exchanged.
+
+Flower handles the communication, orchestration, and aggregation between clients and the central server.
+
+
+
+
+
+Now We Move To Real Federated Learning
+
+Right now:
+
+You have 1 client
+
+All data on 1 machine
+
+This is simulation mode
+
+Next step is important:
+
+STEP 3 — Simulate Multiple Clients
+
+We will:
+
+Create 3 clients
+
+Each gets different part of dataset
+
+Run them in separate terminals
+
+Server aggregates 3 different updates
+
+This makes it real federated learning.
+
+Reply with:
+
+“Let’s build multi-client version”
