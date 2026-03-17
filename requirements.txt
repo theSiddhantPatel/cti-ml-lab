@@ -1,0 +1,8 @@
+flwr==1.27.0
+torch==2.10.0
+numpy==2.4.3
+matplotlib==3.10.8
+pandas==3.0.1
+scikit-learn==1.8.0
+#requirements.txt is used to specify and freze dependencies for the project.
+# It allows you to easily install all the required packages with their specific versions using pip.

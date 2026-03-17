@@ -16,6 +16,8 @@ build/
 
 # ---- Virtual Environments ----
 fl_env/
+fl-env/
+test_env/
 venv/
 .venv/
 env/
@@ -26,8 +28,10 @@ ENV/
 
 # ---- Datasets And Local Experiment Files ----
 data/
+data2/
 MNIST/
 federated_cti/MNIST/
+federated_cti/data/
 
 # ---- Model And Training Outputs ----
 *.pth
@@ -49,3 +53,7 @@ Thumbs.db
 
 # ---- Misc ----
 *.sqlite3
+
+
+.html
+
