@@ -1,107 +1,167 @@
-CTI-ML-Lab
-Overview
+# Federated Learning System using Flower and PyTorch
 
-CTI-ML-Lab is a hands-on machine learning project focused on Cyber Threat Intelligence (CTI).
-The goal is to learn and apply core ML concepts by detecting security threats from logs and other cyber-security data, starting with classical machine learning models and gradually evolving toward federated learning.
+## Project Overview
 
-This project is build-first and learning-oriented.
+This project shows how to build a simple federated learning system using **Flower** and **PyTorch**. Multiple clients train the same model on their own local MNIST data, while a central server collects and aggregates the model updates to create a better global model.
 
-Project Goals
+The main idea is to train a shared model **without sending raw client data to the server**. This makes the project a good beginner-friendly example of privacy-aware distributed machine learning.
 
-Learn machine learning using real cybersecurity use cases
+## What Is Federated Learning?
 
-Detect suspicious or malicious behavior from security data
+Federated learning is a machine learning approach where many clients train a model locally on their own data.  
+Instead of sharing datasets, each client only sends model updates to a server, and the server combines them to improve the global model.
 
-Build a clean ML pipeline step by step
+## Features
 
-Add federated learning later for privacy-preserving intelligence sharing
+- Multi-client federated learning setup
+- Custom Flower strategy for server-side aggregation
+- Global model aggregation across training rounds
+- Accuracy tracking after each round
+- Accuracy visualization using `matplotlib`
+- Global model saving after every round
+- MNIST-based example that is easy to understand and run
 
-Data Types (Initial Focus)
+## Tech Stack
 
-This project works with simplified and synthetic versions of:
+- Python
+- Flower
+- PyTorch
+- Torchvision
+- NumPy
+- Matplotlib
 
-Network logs
+## Project Structure
 
-Authentication logs (login attempts, failures)
-
-Suspicious URLs
-
-Malware file hashes
-
-Real datasets will be added gradually as the project evolves.
-
-Machine Learning Scope (Phase 1)
-
-Data preprocessing and feature extraction
-
-Classification and anomaly detection
-
-Model evaluation (precision, recall, confusion matrix)
-
-Initial models:
-
-Logistic Regression
-
-Decision Tree
-
-Random Forest
-
-Isolation Forest
-
-Tech Stack
-
-Python
-
-NumPy
-
-Pandas
-
-scikit-learn
-
-Matplotlib
-
-(No deep learning in the initial phase)
-
-Project Structure
+```text
 cti-ml-lab/
-│── data/ # Datasets (CSV, synthetic logs)
-│── notebooks/ # Experiments and learning notebooks
-│── src/ # Core ML pipeline code
-│── models/ # Trained models
-│── README.md
+├── federated_cti/
+│   ├── main.py           # Client code for local training and evaluation
+│   ├── server.py         # Server setup, custom strategy, and aggregation logic
+│   ├── run_clients.py    # Starts multiple clients automatically
+│   └── plot_metrics.py   # Plots accuracy across training rounds
+├── requirements.txt      # Project dependencies
+└── README.md             # Project documentation
+```
 
-Roadmap
+## How the Project Works
 
-Phase 1
+1. The server starts and waits for clients to connect.
+2. Each client loads its own part of the MNIST training data.
+3. Clients train the model locally using PyTorch.
+4. The server collects the updated model parameters from all clients.
+5. The server aggregates these updates into one global model.
+6. This process repeats for multiple rounds.
+7. After each round, the global model is saved and accuracy is tracked.
 
-Learn ML basics
+## Installation
 
-Build local threat detection models
+### 1. Clone the repository
 
-Evaluate performance on sample data
+```bash
+git clone <your-repository-url>
+cd cti-ml-lab
+```
 
-Phase 2
+### 2. Create a virtual environment
 
-Improve feature engineering
+```bash
+python -m venv venv
+```
 
-Add anomaly detection
+### 3. Activate the virtual environment
 
-Create reusable ML pipeline
+On Windows:
 
-Phase 3
+```bash
+venv\Scripts\activate
+```
 
-Introduce federated learning concepts
+On macOS/Linux:
 
-Simulate distributed clients
+```bash
+source venv/bin/activate
+```
 
-Privacy-preserving model updates
+### 4. Install dependencies
 
-Current Status
+```bash
+pip install -r requirements.txt
+```
 
-🚧 In progress
-This project is actively being built while learning machine learning fundamentals.
+## How to Run the Project
 
-Motivation
+Open a terminal and move into the project folder:
 
-Cyber threats are constantly evolving, and sharing intelligence is hard due to privacy concerns.
-This project explores how machine learning, and eventually federated learning, can help detect threats while keeping sensitive data local.
+```bash
+cd federated_cti
+```
+
+### Step 1: Start the server
+
+```bash
+python server.py
+```
+
+The server will start on:
+
+```text
+127.0.0.1:8081
+```
+
+### Step 2: Start the clients
+
+Open another terminal in the same folder and run:
+
+```bash
+python run_clients.py
+```
+
+This script starts 3 clients. Each client trains on a different portion of the MNIST dataset.
+
+### Step 3: Plot the accuracy graph
+
+After training is complete, run:
+
+```bash
+python plot_metrics.py
+```
+
+This will generate an accuracy plot from the saved training history.
+
+## Example Output
+
+During training, you may see output similar to this:
+
+```text
+Round 1 Global Accuracy: 0.7821
+Round 2 Global Accuracy: 0.8467
+Round 3 Global Accuracy: 0.8794
+```
+
+This shows that the global model improves over time as the server combines learning from all clients.
+
+## Files Generated After Training
+
+- `accuracy_history.json` - Stores accuracy values for each round
+- `global_model_round_1.pth` - Saved global model after round 1
+- `global_model_round_2.pth` - Saved global model after round 2
+- `global_model_round_3.pth` - Saved global model after round 3
+- `accuracy_plot.png` - Accuracy graph created by `plot_metrics.py`
+
+## Future Improvements
+
+- Add support for more clients and flexible client selection
+- Use a deeper neural network for better performance
+- Add support for non-IID data distribution
+- Track loss along with accuracy
+- Save training logs in a more detailed format
+- Add configuration files for easy experiment setup
+- Support GPU training for faster local updates
+
+## Why This Project Is Useful
+
+This project is a simple starting point for learning how federated learning works in practice. It helps beginners understand how local training, server aggregation, and round-based learning come together in a real implementation.
+
+## Conclusion
+
+This federated learning system demonstrates how Flower and PyTorch can be used together to train a shared model while keeping client data local. It is small, practical, and easy to extend for more advanced federated learning experiments.
