@@ -1,41 +1,38 @@
-import flwr as fl
-import torch
-import torch.nn as nn
 from collections import OrderedDict
 import json
+from pathlib import Path
+
+import flwr as fl
+import torch
+
+from nsl_kdd import Net
 
 
-# Model
-class Net(nn.Module):
-    def __init__(self):
-        super(Net, self).__init__()
-        self.fc = nn.Linear(28 * 28, 10)
-
-    def forward(self, x):
-        x = x.view(-1, 28 * 28)
-        return self.fc(x)
+BASE_DIR = Path(__file__).resolve().parent
 
 
-# Custom strategy
 class CustomStrategy(fl.server.strategy.FedAvg):
-
     def __init__(self):
         super().__init__()
-        self.accuracy_history = []  # store global accuracy
+        self.accuracy_history = []
 
     def save_metrics(self):
-        with open("accuracy_history.json", "w") as f:
-            json.dump(self.accuracy_history, f)
+        with (BASE_DIR / "accuracy_history.json").open("w", encoding="utf-8") as file:
+            json.dump(self.accuracy_history, file)
 
     def aggregate_evaluate(self, server_round, results, failures):
         if not results:
             return None, {}
 
-        accuracies = [res.metrics["accuracy"] for _, res in results]
-        avg_accuracy = sum(accuracies) / len(accuracies)
-        self.accuracy_history.append(avg_accuracy)  # store it
+        accuracies = []
+        for _, result in results:
+            if "accuracy" in result.metrics:
+                accuracies.append(result.metrics["accuracy"])
 
-        print(f"\n Round {server_round} Global Accuracy: {avg_accuracy:.4f}\n")
+        if accuracies:
+            avg_acc = sum(accuracies) / len(accuracies)
+            self.accuracy_history.append(avg_acc)
+            print(f"\nRound {server_round} Global Accuracy: {avg_acc:.4f}\n")
 
         return super().aggregate_evaluate(server_round, results, failures)
 
@@ -48,23 +45,27 @@ class CustomStrategy(fl.server.strategy.FedAvg):
             print(f"Saving global model after round {server_round}...")
 
             ndarrays = fl.common.parameters_to_ndarrays(aggregated_parameters)
+            model_state = OrderedDict()
 
-            model_dict = OrderedDict()
-            for k, v in zip(Net().state_dict().keys(), ndarrays):
-                model_dict[k] = torch.tensor(v)
+            for key, value in zip(Net().state_dict().keys(), ndarrays):
+                model_state[key] = torch.tensor(value)
 
-            torch.save(model_dict, f"global_model_round_{server_round}.pth")
+            torch.save(model_state, BASE_DIR / f"global_model_round_{server_round}.pth")
 
         return aggregated_parameters, metrics
 
 
-strategy = CustomStrategy()
+def main():
+    strategy = CustomStrategy()
 
-fl.server.start_server(
-    server_address="127.0.0.1:8081",
-    config=fl.server.ServerConfig(num_rounds=3),
-    strategy=strategy,
-)
+    fl.server.start_server(
+        server_address="127.0.0.1:8081",
+        config=fl.server.ServerConfig(num_rounds=3),
+        strategy=strategy,
+    )
 
-# after training, save the accuracy history
-strategy.save_metrics()
+    strategy.save_metrics()
+
+
+if __name__ == "__main__":
+    main()
