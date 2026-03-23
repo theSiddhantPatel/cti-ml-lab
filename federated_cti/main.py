@@ -55,12 +55,45 @@ def train(epochs=3):
 
 
 # ---- Test ----
+# def test():
+#     model.eval()
+#     total_loss = 0.0
+#     correct = 0
+#     total = 0
+#     loss_fn = nn.CrossEntropyLoss()
+
+#     with torch.no_grad():
+#         for data, target in testloader:
+#             data, target = data.to(device), target.to(device)
+
+#             output = model(data)
+#             total_loss += loss_fn(output, target).item()
+#             predictions = output.argmax(dim=1)
+
+#             correct += (predictions == target).sum().item()
+#             total += target.size(0)
+
+#     return total_loss / len(testloader), correct / total
+
+
 def test():
     model.eval()
+    # loss_fn = nn.CrossEntropyLoss()
+    class_counts = [67343, 45927, 11656, 995, 52]
+    weights = [1.0 / c for c in class_counts]
+    weights = torch.tensor(weights, dtype=torch.float32).to(device)
+
+    loss_fn = nn.CrossEntropyLoss(weight=weights)
     total_loss = 0.0
     correct = 0
     total = 0
-    loss_fn = nn.CrossEntropyLoss()
+
+    num_classes = 5
+    class_correct = [0] * num_classes
+    class_total = [0] * num_classes
+
+    # Confusion matrix
+    confusion = torch.zeros(num_classes, num_classes)
 
     with torch.no_grad():
         for data, target in testloader:
@@ -68,12 +101,32 @@ def test():
 
             output = model(data)
             total_loss += loss_fn(output, target).item()
-            predictions = output.argmax(dim=1)
 
-            correct += (predictions == target).sum().item()
+            preds = output.argmax(dim=1)
+
+            correct += (preds == target).sum().item()
             total += target.size(0)
 
-    return total_loss / len(testloader), correct / total
+            # Per-class stats
+            for i in range(len(target)):
+                label = target[i].item()
+                pred = preds[i].item()
+
+                class_total[label] += 1
+                if pred == label:
+                    class_correct[label] += 1
+
+                confusion[label][pred] += 1
+
+    # Per-class accuracy
+    class_accuracy = []
+    for i in range(num_classes):
+        acc = class_correct[i] / class_total[i] if class_total[i] > 0 else 0
+        class_accuracy.append(acc)
+
+    overall_acc = correct / total
+
+    return total_loss / len(testloader), overall_acc, class_accuracy, confusion
 
 
 # ---- Flower helpers ----
@@ -101,9 +154,23 @@ class FlowerClient(fl.client.NumPyClient):
 
     def evaluate(self, parameters, config):
         set_parameters(parameters)
-        loss, accuracy = test()
-        print(f"Client {client_id}: Accuracy = {accuracy:.4f}")
+        # loss, accuracy = test()
+
+        loss, accuracy, class_acc, confusion = test()
+
+        print(f"\nClient {client_id} Results:")
+        print(f"Overall Accuracy: {accuracy:.4f}")
+
+        for i, acc in enumerate(class_acc):
+            print(f"Class {i} Accuracy: {acc:.4f}")
+
+        print("Confusion Matrix:")
+        print(confusion)
+
         return loss, len(testloader.dataset), {"accuracy": accuracy}
+
+        # print(f"Client {client_id}: Accuracy = {accuracy:.4f}")
+        # return loss, len(testloader.dataset), {"accuracy": accuracy}
 
 
 # ---- Start ----

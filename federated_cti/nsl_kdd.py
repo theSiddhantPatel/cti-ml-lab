@@ -140,19 +140,52 @@ def prepare_datasets():
     return train_dataset, test_dataset, feature_encoders, label_encoder, scaler
 
 
+# def split_train_dataset(train_dataset, client_id, num_clients=NUM_CLIENTS):
+#     if client_id < 0 or client_id >= num_clients:
+#         raise ValueError(f"client_id must be between 0 and {num_clients - 1}")
+
+#     # ---- Shuffle dataset ----
+#     features, labels = train_dataset.tensors
+#     perm = torch.randperm(len(features))
+
+#     features = features[perm]
+#     labels = labels[perm]
+
+#     total_samples = len(features)
+#     start = client_id * total_samples // num_clients
+#     end = (client_id + 1) * total_samples // num_clients
+
+#     return TensorDataset(features[start:end], labels[start:end])
+
+
 def split_train_dataset(train_dataset, client_id, num_clients=NUM_CLIENTS):
     if client_id < 0 or client_id >= num_clients:
         raise ValueError(f"client_id must be between 0 and {num_clients - 1}")
 
-    # ---- Shuffle dataset ----
     features, labels = train_dataset.tensors
-    perm = torch.randperm(len(features))
 
-    features = features[perm]
-    labels = labels[perm]
+    # ---- Define class distribution per client ----
+    if client_id == 0:
+        allowed_classes = [0, 1, 2]  # normal, dos
+    elif client_id == 1:
+        allowed_classes = [1, 2, 3]  # probe
+    elif client_id == 2:
+        allowed_classes = [2, 3, 4]  # r2l, u2r
+    else:
+        raise ValueError("Invalid client_id")
 
-    total_samples = len(features)
-    start = client_id * total_samples // num_clients
-    end = (client_id + 1) * total_samples // num_clients
+    # ---- Select indices belonging to allowed classes ----
+    mask = torch.zeros_like(labels, dtype=torch.bool)
 
-    return TensorDataset(features[start:end], labels[start:end])
+    for cls in allowed_classes:
+        mask |= labels == cls
+
+    selected_features = features[mask]
+    selected_labels = labels[mask]
+
+    print(
+        f"Client {client_id} → Classes {allowed_classes}, "
+        f"Samples: {len(selected_labels)}"
+    )
+
+    return TensorDataset(selected_features, selected_labels)
