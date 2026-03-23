@@ -184,7 +184,7 @@ def split_train_dataset(train_dataset, client_id, num_clients=NUM_CLIENTS):
     selected_labels = labels[mask]
 
     print(
-        f"Client {client_id} → Classes {allowed_classes}, "
+        f"Client {client_id} -> Classes {allowed_classes}, "
         f"Samples: {len(selected_labels)}"
     )
 
