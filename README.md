@@ -1,10 +1,10 @@
-# Federated Learning System using Flower and PyTorch
+# Federated Learning Intrusion Detection with Flower and PyTorch
 
 ## Project Overview
 
-This project shows how to build a simple federated learning system using **Flower** and **PyTorch**. Multiple clients train the same model on their own local MNIST data, while a central server collects and aggregates the model updates to create a better global model.
+This project builds a simple federated learning system using **Flower** and **PyTorch** for **network intrusion detection** on the **NSL-KDD** dataset. Multiple clients train the same model on their own local data partitions, while a central server collects and aggregates the model updates to create a better global model.
 
-The main idea is to train a shared model **without sending raw client data to the server**. This makes the project a good beginner-friendly example of privacy-aware distributed machine learning.
+The main idea is to train a shared model **without sending raw client data to the server**. This makes the project a good beginner-friendly example of privacy-aware distributed machine learning for cybersecurity use cases.
 
 ## What Is Federated Learning?
 
@@ -19,14 +19,15 @@ Instead of sharing datasets, each client only sends model updates to a server, a
 - Accuracy tracking after each round
 - Accuracy visualization using `matplotlib`
 - Global model saving after every round
-- MNIST-based example that is easy to understand and run
+- NSL-KDD based intrusion detection workflow
 
 ## Tech Stack
 
 - Python
 - Flower
 - PyTorch
-- Torchvision
+- Pandas
+- Scikit-learn
 - NumPy
 - Matplotlib
 
@@ -46,7 +47,7 @@ cti-ml-lab/
 ## How the Project Works
 
 1. The server starts and waits for clients to connect.
-2. Each client loads its own part of the MNIST training data.
+2. Each client loads its own part of the NSL-KDD training data.
 3. Clients train the model locally using PyTorch.
 4. The server collects the updated model parameters from all clients.
 5. The server aggregates these updates into one global model.
@@ -90,16 +91,16 @@ pip install -r requirements.txt
 
 ## How to Run the Project
 
-Open a terminal and move into the project folder:
+Open a terminal in the repository root:
 
 ```bash
-cd federated_cti
+cd cti-ml-lab
 ```
 
 ### Step 1: Start the server
 
 ```bash
-python server.py
+python federated_cti/server.py
 ```
 
 The server will start on:
@@ -113,17 +114,17 @@ The server will start on:
 Open another terminal in the same folder and run:
 
 ```bash
-python run_clients.py
+python federated_cti/run_clients.py
 ```
 
-This script starts 3 clients. Each client trains on a different portion of the MNIST dataset.
+This script starts 3 clients. Each client trains on a different portion of the NSL-KDD dataset.
 
 ### Step 3: Plot the accuracy graph
 
 After training is complete, run:
 
 ```bash
-python plot_metrics.py
+python federated_cti/plot_metrics.py
 ```
 
 This will generate an accuracy plot from the saved training history.
