@@ -6,6 +6,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 
 from nsl_kdd import NUM_CLIENTS, Net, prepare_datasets, split_train_dataset
+import json
 
 # ---- Device ----
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -167,6 +168,11 @@ class FlowerClient(fl.client.NumPyClient):
         print("Confusion Matrix:")
         print(confusion)
 
+        # Save confusion matrix
+        confusion_list = confusion.cpu().tolist()
+
+        with open(f"confusion_client_{client_id}.json", "w") as f:
+            json.dump(confusion.cpu().tolist(), f)
         return loss, len(testloader.dataset), {"accuracy": accuracy}
 
         # print(f"Client {client_id}: Accuracy = {accuracy:.4f}")

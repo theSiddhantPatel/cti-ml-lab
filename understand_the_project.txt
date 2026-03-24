@@ -1,0 +1,693 @@
+CTI-ML-LAB PROJECT EXPLANATION
+
+1. What is this project?
+
+This project is a Cyber Threat Intelligence / Intrusion Detection project built with Federated Learning.
+
+In simple words:
+
+- We want to detect whether network traffic is normal or an attack.
+- We train a machine learning model on the NSL-KDD cybersecurity dataset.
+- Instead of training everything in one central place, we simulate multiple clients.
+- Each client trains on its own local data.
+- A central server collects only the learned model updates, not the raw data.
+- The server combines those updates to create one improved global model.
+
+So this project is a beginner-friendly practical implementation of:
+
+- Cybersecurity attack detection
+- Distributed machine learning
+- Privacy-aware training using Federated Learning
+
+
+2. Main motive of this project
+
+The main motive of this project is to show how Federated Learning can be used in cybersecurity.
+
+Normally, in many real-world organizations:
+
+- different offices
+- different companies
+- different hospitals
+- different banks
+- different security centers
+
+may all have their own local data, and they may not want to share that raw data because of:
+
+- privacy issues
+- security issues
+- legal restrictions
+- confidential information
+
+Federated Learning solves this problem by allowing every client to train locally and send only model parameters or updates to the server.
+
+For this project, the motive is:
+
+- to detect intrusions or cyberattacks in network data
+- to learn Federated Learning in a practical way
+- to simulate how multiple organizations/devices can train together without sharing raw data
+- to build a foundation that can later be extended into a more realistic CTI system
+
+
+3. What problem is this project solving?
+
+This project tries to solve the problem of intrusion detection.
+
+Intrusion detection means:
+
+- checking network records
+- understanding whether the traffic is normal
+- identifying whether the traffic belongs to an attack
+
+This project uses the NSL-KDD dataset, which contains network connection records and attack labels.
+
+The final model predicts one of these 5 categories:
+
+- normal
+- dos
+- probe
+- r2l
+- u2r
+
+Meaning:
+
+- normal = normal traffic
+- dos = Denial of Service attack
+- probe = scanning / probing attack
+- r2l = Remote to Local attack
+- u2r = User to Root attack
+
+
+4. Why Federated Learning is used here
+
+Federated Learning is used here because it is a better way to train a shared model when data is distributed across different clients.
+
+Instead of:
+
+- sending all raw data to one server
+
+we do this:
+
+- each client keeps its own local data
+- each client trains the model locally
+- each client sends model updates to the server
+- the server aggregates the updates
+- the server sends back the improved global model
+
+Benefits:
+
+- better privacy
+- more realistic distributed learning
+- useful for organizations that cannot share raw security data
+- good simulation of real-world collaborative threat detection
+
+
+5. Is this real federated learning or simulation?
+
+This project is a simulated federated learning setup.
+
+That means:
+
+- all clients are running on the same machine right now
+- but they behave like separate federated clients
+- each client gets a different portion of data
+- Flower manages communication between clients and the server
+
+So this is not yet a large real deployment across different physical machines, but it correctly demonstrates the Federated Learning workflow.
+
+
+6. Which dataset is used?
+
+This project uses the NSL-KDD dataset.
+
+Files used:
+
+- federated_cti/data/KDDTrain+.txt
+- federated_cti/data/KDDTest+.txt
+
+Why this dataset is used:
+
+- it is a standard dataset for intrusion detection research
+- it contains normal and attack traffic records
+- it is good for learning cybersecurity ML
+- it is simple enough for experimentation and demonstrations
+
+There are also sample input files in:
+
+- federated_cti/data/input_sample1.csv
+- federated_cti/data/input_sample2.csv
+
+These can be useful for testing predictions in the dashboard.
+
+
+7. High-level flow of the whole project
+
+The overall flow is:
+
+1. Download or place the dataset into the project data folder.
+2. Load and preprocess the NSL-KDD dataset.
+3. Convert raw attack names into 5 main categories.
+4. Encode categorical features into numeric values.
+5. Scale the features so the model can learn better.
+6. Split the training data among 3 clients.
+7. Start the Flower server.
+8. Start 3 federated clients.
+9. Each client trains locally on its own data.
+10. Clients send trained model parameters to the server.
+11. The server aggregates all client updates using FedAvg.
+12. The new global model is saved after each round.
+13. Clients evaluate the model and send accuracy to the server.
+14. The server stores global accuracy history.
+15. Metrics and confusion matrices can be visualized later.
+16. A Streamlit dashboard can be used to view results and run predictions.
+
+
+8. Folder and file understanding
+
+Important files in this project:
+
+- README.md
+  Basic project introduction and run instructions.
+
+- requirements.txt
+  List of Python libraries needed for the project.
+
+- download_DataSet.py
+  Downloads the NSL-KDD dataset using kagglehub and copies it into the correct local folder.
+
+- federated_cti/nsl_kdd.py
+  This is one of the most important files.
+  It handles:
+  - dataset loading
+  - label mapping
+  - encoding
+  - scaling
+  - model definition
+  - train data splitting across clients
+
+- federated_cti/main.py
+  This is the client-side federated learning script.
+  Each client:
+  - loads the model
+  - gets its own split of training data
+  - trains locally
+  - evaluates locally
+  - sends parameters and metrics to the server
+
+- federated_cti/server.py
+  This is the central server script.
+  It:
+  - starts the Flower server
+  - uses the FedAvg aggregation strategy
+  - stores global accuracy across rounds
+  - saves the global model after each round
+
+- federated_cti/run_clients.py
+  Starts all 3 clients automatically using subprocess.
+
+- federated_cti/plot_metrics.py
+  Reads saved accuracy history and creates an accuracy graph.
+
+- federated_cti/dashboard.py
+  Streamlit dashboard for:
+  - viewing global accuracy
+  - viewing confusion matrices
+  - viewing per-class accuracy
+  - uploading CSV data for prediction
+
+- notebooks/
+  Jupyter notebooks for data loading, cleaning, analysis, and experimentation.
+
+
+9. How the dataset is processed
+
+The file federated_cti/nsl_kdd.py does the preprocessing.
+
+Step-by-step:
+
+1. The code reads:
+   - KDDTrain+.txt
+   - KDDTest+.txt
+
+2. The dataset has 41 input features and labels.
+
+3. The original attack names are mapped into 5 broad categories:
+   - normal
+   - dos
+   - probe
+   - r2l
+   - u2r
+
+4. Some columns are categorical, so they cannot be directly used by the neural network.
+   These columns are encoded using LabelEncoder.
+
+5. The labels are also encoded into numeric form.
+
+6. Features are standardized using StandardScaler.
+   This is important because neural networks usually learn better when the inputs are scaled.
+
+7. Finally, the processed data is converted into PyTorch TensorDataset format so it can be used by DataLoader.
+
+
+10. How the model works
+
+The model is defined in federated_cti/nsl_kdd.py inside the Net class.
+
+It is a simple feedforward neural network:
+
+- input layer with 41 features
+- hidden layer with 64 neurons
+- ReLU activation
+- hidden layer with 32 neurons
+- ReLU activation
+- output layer with 5 classes
+
+This means the model is a small Multi-Layer Perceptron (MLP).
+
+Why this model is used:
+
+- simple to understand
+- easy to train
+- suitable for a beginner project
+- enough to demonstrate federated learning
+
+
+11. How federated learning is performed in this project
+
+This is the heart of the project.
+
+Federated learning here happens in rounds.
+
+Round workflow:
+
+1. The server starts and waits for clients.
+2. Clients connect to the server at:
+   127.0.0.1:8081
+
+3. The server sends the current global model parameters to all clients.
+
+4. Each client:
+   - loads those parameters
+   - trains locally on its own local dataset
+   - completes local epochs
+   - sends updated model parameters back
+
+5. The server collects updates from all clients.
+
+6. The server aggregates them using FedAvg.
+
+7. The aggregated model becomes the new global model.
+
+8. The server saves the global model for that round.
+
+9. Clients evaluate the updated model and send accuracy metrics.
+
+10. The server stores average accuracy history.
+
+This repeats for 3 rounds in the current implementation.
+
+
+12. How data is split across clients
+
+The project uses 3 clients.
+
+This split is done in:
+
+- federated_cti/nsl_kdd.py
+
+The function split_train_dataset() gives different class distributions to different clients.
+
+Current client distribution:
+
+- Client 0 gets classes [0, 1, 2]
+- Client 1 gets classes [1, 2, 3]
+- Client 2 gets classes [2, 3, 4]
+
+In easier words:
+
+- every client does not see exactly the same type of data
+- clients have overlapping but different attack categories
+- this simulates a non-IID federated learning setup
+
+What non-IID means:
+
+- data is not distributed evenly and identically across clients
+- each client may have a different pattern of traffic
+- this is closer to real-world federated learning
+
+This is important because in real life, different organizations often have different types of threats and traffic.
+
+
+13. How client-side training works
+
+Client-side logic is written in:
+
+- federated_cti/main.py
+
+Each client does the following:
+
+1. Takes a client_id from command line.
+2. Loads the model.
+3. Loads the full processed dataset.
+4. Selects only its own local training split.
+5. Creates DataLoader objects.
+6. Trains the model using:
+   - SGD optimizer
+   - learning rate = 0.01
+   - momentum = 0.9
+   - CrossEntropyLoss
+
+7. Runs local training for 3 epochs.
+8. Evaluates on the shared test dataset.
+9. Computes:
+   - loss
+   - overall accuracy
+   - class-wise accuracy
+   - confusion matrix
+10. Saves its confusion matrix to a JSON file.
+11. Sends accuracy metric to the server.
+
+
+14. How server-side aggregation works
+
+Server logic is written in:
+
+- federated_cti/server.py
+
+The server uses Flower's FedAvg strategy.
+
+FedAvg means:
+
+- the server receives model parameters from clients
+- it averages them
+- the averaged parameters become the new global model
+
+This file also has a custom strategy class called CustomStrategy.
+
+What this custom strategy does:
+
+- tracks global accuracy round by round
+- saves accuracy history into accuracy_history.json
+- saves the global model after every federated round
+
+Saved model files look like:
+
+- global_model_round_1.pth
+- global_model_round_2.pth
+- global_model_round_3.pth
+
+
+15. How evaluation is done
+
+Evaluation happens mainly in the client code.
+
+The project calculates:
+
+- total loss
+- overall accuracy
+- class-wise accuracy
+- confusion matrix
+
+Why confusion matrix is useful:
+
+- it shows which classes are being predicted correctly
+- it shows where the model is making mistakes
+- it helps us understand weak classes, especially rare attacks
+
+The confusion matrix of each client is saved as:
+
+- confusion_client_0.json
+- confusion_client_1.json
+- confusion_client_2.json
+
+
+16. How visualization works
+
+There are two main visualization methods.
+
+1. plot_metrics.py
+
+This script:
+
+- reads accuracy_history.json
+- creates a line graph of accuracy over rounds
+- saves the graph as accuracy_plot.png
+
+Why this is useful:
+
+- it shows whether the global model is improving after each federated round
+
+2. dashboard.py
+
+This is a Streamlit dashboard.
+
+It provides:
+
+- global accuracy line chart
+- client-wise confusion matrix view
+- client-wise per-class accuracy chart
+- CSV upload for prediction
+- simple insights for users
+
+This makes the project more understandable and interactive.
+
+
+17. How prediction works in the dashboard
+
+The dashboard loads:
+
+- the trained global model
+- the preprocessing objects
+
+Then when a CSV file is uploaded:
+
+1. the file is read
+2. the expected columns are assigned
+3. label and difficulty columns are removed
+4. categorical features are encoded
+5. features are scaled
+6. data is converted to tensors
+7. the model predicts the class
+8. predicted labels are shown in the dashboard
+
+This is helpful for demonstrating how the trained model can be used on new data.
+
+
+18. Tools and technologies used in this project and why
+
+1. Python
+
+Why:
+- simple and popular for machine learning
+- large ecosystem for data science and AI
+- easy to prototype and experiment
+
+2. Flower
+
+Why:
+- it is a federated learning framework
+- it handles client-server communication
+- it simplifies federated training orchestration
+- it provides strategies like FedAvg
+
+3. PyTorch
+
+Why:
+- used to build and train the neural network
+- flexible and beginner-friendly
+- widely used in deep learning
+
+4. Pandas
+
+Why:
+- used to load and process tabular dataset files
+- helps in cleaning and transforming data
+
+5. Scikit-learn
+
+Why:
+- used for LabelEncoder
+- used for StandardScaler
+- useful for preprocessing
+
+6. NumPy
+
+Why:
+- numerical operations
+- parameter conversion and data handling
+
+7. Matplotlib
+
+Why:
+- used for plotting model accuracy over rounds
+
+8. Seaborn
+
+Why:
+- used in dashboard for better confusion matrix heatmaps
+
+9. Streamlit
+
+Why:
+- fast way to create an interactive dashboard
+- easy to display metrics and predictions
+
+10. KaggleHub
+
+Why:
+- used in download_DataSet.py to download the NSL-KDD dataset
+
+11. Jupyter Notebooks
+
+Why:
+- useful for data analysis, cleaning, testing ideas, and experiments
+
+
+19. Why these tools are a good combination
+
+This combination is good because:
+
+- Flower manages federated learning communication
+- PyTorch handles model training
+- Pandas and scikit-learn handle preprocessing
+- Matplotlib and Seaborn handle visualization
+- Streamlit provides an easy user interface
+
+Together, these tools make the project practical, educational, and extendable.
+
+
+20. How to run the project
+
+Basic run flow:
+
+1. Create and activate virtual environment
+
+Example:
+
+- python -m venv fl_env
+- fl_env\Scripts\Activate.ps1
+
+2. Install dependencies
+
+- pip install -r requirements.txt
+
+3. Make sure dataset files exist in:
+
+- federated_cti/data/KDDTrain+.txt
+- federated_cti/data/KDDTest+.txt
+
+4. Start server
+
+- python federated_cti/server.py
+
+5. Start clients in another terminal
+
+- python federated_cti/run_clients.py
+
+6. Plot metrics after training
+
+- python federated_cti/plot_metrics.py
+
+7. Run dashboard if needed
+
+- streamlit run federated_cti/dashboard.py
+
+
+21. What files are generated after training
+
+After running the project, you may get:
+
+- federated_cti/accuracy_history.json
+- federated_cti/global_model_round_1.pth
+- federated_cti/global_model_round_2.pth
+- federated_cti/global_model_round_3.pth
+- federated_cti/accuracy_plot.png
+- federated_cti/confusion_client_0.json
+- federated_cti/confusion_client_1.json
+- federated_cti/confusion_client_2.json
+
+These files are useful for:
+
+- tracking model progress
+- saving checkpoints
+- visualizing results
+- debugging model behavior
+
+
+22. Simple end-to-end explanation in very easy words
+
+Think of this project like this:
+
+- There are 3 branches of one organization.
+- Each branch has its own cybersecurity data.
+- The branches do not want to share raw data.
+- So each branch trains the same model locally.
+- After training, each branch sends only its learned knowledge to the main server.
+- The main server combines the knowledge from all branches.
+- Now the server has a better global model.
+- This process repeats several times.
+- Finally, we get one model that has learned from all clients without collecting their raw data.
+
+That is exactly the main idea of this project.
+
+
+23. Strong points of this project
+
+- easy to understand
+- real implementation of federated learning
+- useful cybersecurity use case
+- supports visualization
+- has dashboard support
+- has saved metrics and model checkpoints
+- demonstrates non-IID data distribution
+
+
+24. Current limitations of this project
+
+Like every project, this one also has some limitations:
+
+- clients are simulated on the same machine
+- only 3 federated rounds are used
+- only 3 clients are used
+- model is relatively small and simple
+- there is no advanced security mechanism like secure aggregation
+- no differential privacy is added
+- no real-time network traffic pipeline is connected
+- evaluation is still based on NSL-KDD test data
+
+These are not problems for learning, but they are areas for future improvement.
+
+
+25. Possible future improvements
+
+- use more clients
+- run clients on different machines
+- support real organization-wise data splits
+- add stronger neural network architectures
+- add secure aggregation
+- add differential privacy
+- use better experiment tracking
+- add live prediction APIs
+- integrate real CTI feeds or SIEM logs
+- improve rare attack detection
+- support configuration files for easier experiments
+
+
+26. Final conclusion
+
+This project is a Federated Learning based intrusion detection system built on the NSL-KDD dataset using Flower and PyTorch.
+
+Its main goal is to show how multiple clients can collaboratively train a cybersecurity attack detection model without sharing raw data.
+
+The project works by:
+
+- preprocessing NSL-KDD data
+- splitting the training data across 3 clients
+- training the same neural network locally on each client
+- aggregating model updates on a Flower server
+- saving global models and accuracy after each round
+- visualizing results through plots and a Streamlit dashboard
+
+In short:
+
+This project is a simple, practical, and educational implementation of federated learning for cyber threat / intrusion detection.
