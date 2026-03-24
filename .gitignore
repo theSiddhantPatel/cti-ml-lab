@@ -13,6 +13,7 @@ htmlcov/
 dist/
 build/
 *.egg-info/
+.txt
 
 # ---- Virtual Environments ----
 fl_env/
@@ -57,3 +58,4 @@ Thumbs.db
 
 .html
 
+.json
